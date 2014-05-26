@@ -6,8 +6,8 @@
  *
  * Description:  Add links to post archives (custom post types included) to your nav menus. Based on https://gist.github.com/davidmh/8050982.
  *
- * Author:       The A-TEAM
- * Author URI:   https://github.com/asmbs
+ * Author:       Kyle Tucker
+ * Author URI:   https://github.com/friartuck6000
  *
  * License:      MIT License
  * License URI:  http://opensource.org/licenses/MIT
