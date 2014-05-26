@@ -68,14 +68,14 @@ class Archives_For_Menus
 
 
   /**
-   * add_acrhives_meta_box()
+   * add_archives_meta_box()
    *
    * Register the menu editor meta box.
    *
    */
   public function add_archives_meta_box()
   {
-    
+    add_meta_box( 'add-archive', __( 'Archives' ), [ $this, 'render_archives_meta_box' ], 'nav-menus', 'side', 'default' );
   }
 
   // -------------------------------------------------------------------------------------------
@@ -84,6 +84,17 @@ class Archives_For_Menus
   // -------------------------------------------------------------------------------------------
   // Rendering
   // -------------------------------------------------------------------------------------------
+
+  /**
+   * render_archives_meta_box()
+   *
+   * Renders the contents of the archive link meta box.
+   *
+   */
+  public function render_archives_meta_box()
+  {
+    echo '<p>Hello</p>';
+  }
 
   // -------------------------------------------------------------------------------------------
 }
