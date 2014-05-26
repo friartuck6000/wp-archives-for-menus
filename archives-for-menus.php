@@ -76,10 +76,10 @@ class Archives_For_Menus
 
     // Register item setup filters
     add_filter( 'wp_get_nav_menu_items', [ $this, 'archive_menu_filter' ], 10, 3 );
-    add_filter( 'wp_setup_nav_menu_item', [ $this, 'setup_item' ] );
+    add_filter( 'wp_setup_nav_menu_item', [ $this, 'setup_archive_item' ] );
 
     // Register enqueue hook for our admin JS
-    add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+    add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
   }
 
 
@@ -92,6 +92,23 @@ class Archives_For_Menus
   public function add_archives_meta_box()
   {
     add_meta_box( 'add-archive', __( 'Archives' ), [ $this, 'render_archives_meta_box' ], 'nav-menus', 'side', 'default' );
+  }
+
+
+  /**
+   * enqueue_admin_scripts()
+   *
+   * Loads admin scripts for the nav menu editor.
+   *
+   * @param  string  $hook  The page hook (for conditionally loading scripts).
+   *
+   */
+  public function enqueue_admin_scripts( $hook )
+  {
+    if ( $hook == 'nav-menus.php' )
+    {
+      wp_enqueue_script( 'edit-menu-archive', plugins_url( 'assets/js/archive.js', __FILE__ ), [ 'jquery' ], false, false );
+    }
   }
 
   // -------------------------------------------------------------------------------------------
@@ -166,41 +183,77 @@ class Archives_For_Menus
 
   // -------------------------------------------------------------------------------------------
 
+
+  // -------------------------------------------------------------------------------------------
+  // Filters
+  // -------------------------------------------------------------------------------------------
+
+  /**
+   * archive_menu_filter()
+   *
+   * Properly generate archive menu item fields. Uses wp_setup_nav_menu_item(), which includes
+   * the setup_item() filter.
+   *
+   * @param   array  $items  The current list of items.
+   * @param   int    $menu   The current menu ID.
+   * @param   array  $args   Additional arguments.
+   * @return  array          The processed list of items.
+   *
+   * @see     setup_item()
+   *
+   */
   public function archive_menu_filter( $items, $menu, $args )
   {
     foreach ( $items as &$item )
     {
-      $item = wp_setup_nav_menu_item( $item );
+      // Only make the wp_setup_nav_menu_item() call for archive items.
+      if ( $item->type == 'custom' && in_array( 'type-archive', $item->classes ) )
+        $item = $this->setup_archive_item( $item );
     }
     return $items;
   }
 
-  public function setup_item( $item )
+
+  /**
+   * setup_archive_item()
+   *
+   * Processes item fields for archive menu items. Relies heavily on the array of classes
+   * set during meta box generation, so make sure those are correct!
+   *
+   * @param   WP_Post  $item  A modified WP_Post object representing the menu item.
+   * @return  WP_Post         The more modified WP_Post object, with proper fields set.
+   *
+   * @see     render_archives_meta_box()
+   *
+   */
+  public function setup_archive_item( $item )
   {
     if ( $item->type == 'custom' && in_array( 'type-archive', $item->classes ) )
     {
-
+      // Override the item type label (will default to 'Custom')
       $item->type_label = __( 'Archive' );
+
+      // Yank the post type from the `post-type-*` class
       foreach ( $item->classes as $class )
       {
         if ( preg_match( '/post-type/i', $class ) !== FALSE )
           $post_type = substr( $class, 10 );
       }
-      $item->url = get_post_type_archive_link( $post_type );
-      $item->object = $post_type;
+
+      // Just to be safe, only correct these fields if the post type could be determined
+      if ( isset( $post_type ) )
+      {
+        $item->url = get_post_type_archive_link( $post_type );
+        $item->object = $post_type;
+      }
     }
 
+    // All done
+    //predump( $item );
     return $item;
   }
 
-  public function enqueue_scripts( $hook )
-  {
-    if ( $hook == 'nav-menus.php' )
-    {
-      wp_enqueue_script( 'archive-item-js', plugins_url( 'assets/js/archive.js', __FILE__ ), [ 'jquery' ] );
-    }
-  }
-
+  // -------------------------------------------------------------------------------------------
 }
 
 // ---------------------------------------------------------------------------------------------
