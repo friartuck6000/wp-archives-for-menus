@@ -1,17 +1,11 @@
-<?php // -- /archives-for-menus.php
-
+<?php
 /**
  * Plugin Name:  Archives for Menus
- * Version:      0.1.0
- *
+ * Version:      1.0.0
  * Description:  Add links to post archives (custom post types included) to your nav menus. Based on https://gist.github.com/davidmh/8050982.
- *
  * Author:       Kyle Tucker
  * Author URI:   https://github.com/friartuck6000
- *
  * License:      MIT License
- * License URI:  http://opensource.org/licenses/MIT
- *
  */
 
 // No direct access ----------------------------------------------------------------------------
